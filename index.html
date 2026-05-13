@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monsters University - Test de Fraternidad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Open+Sans:wght@400;700&display=swap');
+
+        :root {
+            --mu-blue: #004d80;
+            --mu-green: #97d700;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#d1dce5 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: #333;
+        }
+
+        .mu-title {
+            font-family: 'Luckiest Guy', cursive;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .option-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 8px solid transparent;
+        }
+
+        .option-btn:hover {
+            transform: translateX(10px);
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+
+        .fraternity-result-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Colores por Fraternidad */
+        .bg-ok { background-color: #97d700; }
+        .bg-ror { background-color: #004d80; }
+        .bg-pnk { background-color: #ff69b4; }
+        .bg-jox { background-color: #ff4500; }
+        .bg-hss { background-color: #4b0082; }
+        .bg-eek { background-color: #ffd700; }
+
+        .text-ok { color: #97d700; }
+        .text-ror { color: #004d80; }
+        .text-pnk { color: #ff69b4; }
+        .text-jox { color: #ff4500; }
+        .text-hss { color: #4b0082; }
+        .text-eek { color: #ffd700; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4">
+
+    <!-- Header -->
+    <header class="w-full max-w-2xl text-center py-8">
+        <h1 class="mu-title text-4xl md:text-6xl text-blue-900 mb-2 animate__animated animate__bounceIn">MONSTERS UNIVERSITY</h1>
+        <p class="text-lg text-blue-700 font-bold uppercase tracking-widest">Cuestionario Oficial de Reclutamiento</p>
+    </header>
+
+    <main class="w-full max-w-2xl">
+        <!-- Pantalla de Inicio -->
+        <div id="start-screen" class="bg-white p-8 rounded-3xl shadow-xl text-center animate__animated animate__fadeIn">
+            <div class="mb-6 text-6xl">🎓</div>
+            <h2 class="text-2xl font-bold mb-4 text-blue-900">¿Tienes lo que se necesita para asustar?</h2>
+            <p class="mb-8 text-gray-600">Responde estas 12 preguntas honestamente para descubrir en qué fraternidad o hermandad encajas mejor según tus talentos y personalidad.</p>
+            <button onclick="startQuiz()" class="bg-blue-800 hover:bg-blue-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-lg transition transform hover:scale-105">
+                ¡Comenzar el Test!
+            </button>
+        </div>
+
+        <!-- Quiz Interface -->
+        <div id="quiz-screen" class="hidden">
+            <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+                <div id="progress" class="progress-bar bg-green-500 h-3 rounded-full" style="width: 0%"></div>
+            </div>
+
+            <div id="question-card" class="bg-white p-8 rounded-3xl shadow-xl animate__animated animate__fadeInRight">
+                <span id="question-number" class="text-blue-500 font-bold text-sm uppercase">Pregunta 1 de 12</span>
+                <h2 id="question-text" class="text-2xl font-bold mt-2 mb-6 text-blue-900 leading-tight">Cargando pregunta...</h2>
+                <div id="options" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- Resultado Final -->
+        <div id="result-screen" class="hidden animate__animated animate__zoomIn">
+            <div class="fraternity-result-card mb-8">
+                <div id="result-header" class="p-8 text-white text-center">
+                    <h3 class="text-xl uppercase font-bold tracking-widest mb-2">Tu nueva casa es:</h3>
+                    <h2 id="result-name" class="mu-title text-5xl">FRATERNIDAD</h2>
+                </div>
+                <div class="p-8 border-b">
+                    <p id="result-description" class="text-gray-700 text-lg leading-relaxed">
+                        Descripción de la fraternidad ganadora...
+                    </p>
+                </div>
+                
+                <!-- Sección de Todas las Fraternidades -->
+                <div class="p-8 bg-gray-50">
+                    <h3 class="text-blue-900 font-bold text-xl mb-4 border-b pb-2">Conoce a las demás fraternidades:</h3>
+                    <div id="all-fraternities-list" class="space-y-6">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white text-center">
+                    <button onclick="location.reload()" class="bg-blue-800 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-xl transition transform hover:scale-105">
+                        Reiniciar el Test
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-8 text-blue-900/50 text-sm pb-8">
+        &copy; 2026 Monsters University Recruitment Office
+    </footer>
+
+    <script>
+        const quizData = [
+            {
+                q: "Es el primer día de clases, ¿cuál es tu principal objetivo?",
+                options: [
+                    { t: "Ser el mejor de la clase y unirme a la élite.", f: "ROR" },
+                    { t: "Hacer amigos de verdad, aunque seamos los raros.", f: "OK" },
+                    { t: "Demostrar que la fuerza bruta es lo único que importa.", f: "JOX" },
+                    { t: "Pasarla bien y que la fiesta nunca termine.", f: "PNK" },
+                    { t: "Mantener un perfil bajo y observar a los demás.", f: "HSS" },
+                    { t: "Entrenar duro para ser el atleta más rápido.", f: "EEK" }
+                ]
+            },
+            {
+                q: "En una competencia de sustos, ¿cuál es tu mayor debilidad?",
+                options: [
+                    { t: "Ser demasiado adorable o poco imponente.", f: "OK" },
+                    { t: "El exceso de confianza que me hace subestimar al resto.", f: "ROR" },
+                    { t: "No pensar antes de actuar y confiar solo en los músculos.", f: "JOX" },
+                    { t: "Distraerme fácilmente con la música o el ambiente.", f: "PNK" },
+                    { t: "Ser tan aterrador que incluso mis compañeros me temen.", f: "HSS" },
+                    { t: "Cansarme rápido si la prueba no requiere velocidad.", f: "EEK" }
+                ]
+            },
+            {
+                q: "Si tu equipo pierde una prueba, ¿cómo reaccionas?",
+                options: [
+                    { t: "Nos damos un abrazo y lo intentamos con más ganas.", f: "OK" },
+                    { t: "Culpamos a los demás y expulsamos al más débil.", f: "ROR" },
+                    { t: "Buscamos pelea con el equipo ganador.", f: "JOX" },
+                    { t: "Organizamos una fiesta para olvidar el mal rato.", f: "PNK" },
+                    { t: "Analizamos fríamente los errores en silencio.", f: "HSS" },
+                    { t: "Salimos a correr para liberar la frustración.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Qué cualidad valoras más en un líder?",
+                options: [
+                    { t: "La carisma, el apellido y la popularidad.", f: "ROR" },
+                    { t: "La empatía y la capacidad de unir a los diferentes.", f: "OK" },
+                    { t: "La fuerza bruta y la intimidación.", f: "JOX" },
+                    { t: "La energía y el estilo.", f: "PNK" },
+                    { t: "La inteligencia oscura y el misterio.", f: "HSS" },
+                    { t: "La disciplina y el rendimiento atlético.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Cuál sería tu lugar favorito en el campus?",
+                options: [
+                    { t: "La sala de trofeos de la fraternidad lujosa.", f: "ROR" },
+                    { t: "La sala de estar acogedora con té y galletas.", f: "OK" },
+                    { t: "El gimnasio de pesas o el ring de boxeo.", f: "JOX" },
+                    { t: "La pista de baile en la fiesta más grande.", f: "PNK" },
+                    { t: "Un rincón oscuro en la biblioteca.", f: "HSS" },
+                    { t: "La pista de atletismo al amanecer.", f: "EEK" }
+                ]
+            },
+            {
+                q: "Te enfrentas a la prueba de 'evitar a la bibliotecaria', ¿qué técnica usas?",
+                options: [
+                    { t: "Trabajo en equipo y creatividad, aunque parezca ridículo.", f: "OK" },
+                    { t: "Confío en mi agilidad y dejo que el resto se las arregle.", f: "ROR" },
+                    { t: "Intento pasar corriendo lo más rápido posible.", f: "JOX" },
+                    { t: "Uso mi encanto para que no me atrape.", f: "PNK" },
+                    { t: "Me muevo por las sombras sin hacer un solo ruido.", f: "HSS" },
+                    { t: "Uso mis reflejos de atleta para esquivar obstáculos.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Qué buscas en un compañero de cuarto?",
+                options: [
+                    { t: "Alguien que sea tan popular como yo.", f: "ROR" },
+                    { t: "Alguien que me acepte tal como soy.", f: "OK" },
+                    { t: "Alguien con quien pueda competir físicamente.", f: "JOX" },
+                    { t: "Alguien que siempre esté listo para salir.", f: "PNK" },
+                    { t: "Alguien que respete mi silencio y mis sombras.", f: "HSS" },
+                    { t: "Alguien que se levante temprano a entrenar.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Cuál es tu estilo para asustar?",
+                options: [
+                    { t: "Clásico, elegante y aterradoramente perfecto.", f: "ROR" },
+                    { t: "Inesperado y basado en talentos ocultos.", f: "OK" },
+                    { t: "Un rugido potente que rompa cristales.", f: "JOX" },
+                    { t: "Parecer inofensivo y luego dar una gran sorpresa.", f: "PNK" },
+                    { t: "Aparecer de la nada sin ser visto.", f: "HSS" },
+                    { t: "Una persecución rápida que no deje escape.", f: "EEK" }
+                ]
+            },
+            {
+                q: "En una fiesta, ¿dónde te encontrarían?",
+                options: [
+                    { t: "En el centro de atención, presumiendo logros.", f: "ROR" },
+                    { t: "Haciendo trucos de magia o juegos de mesa.", f: "OK" },
+                    { t: "Derribando a alguien en un juego de contacto.", f: "JOX" },
+                    { t: "Organizando la música y bailando.", f: "PNK" },
+                    { t: "En una esquina oscura observando a todos.", f: "HSS" },
+                    { t: "Bebiendo batidos de proteínas cerca de la salida.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Cuál es tu mayor miedo?",
+                options: [
+                    { t: "Ser un fracasado y decepcionar a mi familia.", f: "ROR" },
+                    { t: "Quedarme solo y no tener a nadie con quien contar.", f: "OK" },
+                    { t: "Parecer débil ante los demás.", f: "JOX" },
+                    { t: "Que me digan que soy aburrido.", f: "PNK" },
+                    { t: "Ser el centro de una atención alegre y brillante.", f: "HSS" },
+                    { t: "Perder una carrera por falta de condición física.", f: "EEK" }
+                ]
+            },
+            {
+                q: "¿Qué harías si ves a un estudiante nuevo siendo molestado?",
+                options: [
+                    { t: "Probablemente yo sea quien lo está molestando.", f: "ROR" },
+                    { t: "Me acerco, lo ayudo y lo invito a mi casa.", f: "OK" },
+                    { t: "Lo ignoro porque no parece lo suficientemente fuerte.", f: "JOX" },
+                    { t: "Le doy consejos de imagen para que encaje mejor.", f: "PNK" },
+                    { t: "Le doy una mirada aterradora para que se calle.", f: "HSS" },
+                    { t: "Le digo que entrene para saber defenderse.", f: "EEK" }
+                ]
+            },
+            {
+                q: "Finalmente, ¿cómo quieres que te recuerden?",
+                options: [
+                    { t: "Como una leyenda imbatible y exitosa.", f: "ROR" },
+                    { t: "Como alguien que siempre apoyó a sus amigos.", f: "OK" },
+                    { t: "Como el monstruo más rudo del campus.", f: "JOX" },
+                    { t: "Como el alma de todas las fiestas.", f: "PNK" },
+                    { t: "Como una presencia enigmática y sombría.", f: "HSS" },
+                    { t: "Como el atleta más veloz de la historia.", f: "EEK" }
+                ]
+            }
+        ];
+
+        const fraternityDetails = {
+            OK: {
+                id: "OK",
+                name: "Oozma Kappa",
+                colorClass: "bg-ok",
+                textClass: "text-ok",
+                desc: "¡Bienvenidos a la familia! En Oozma Kappa sabemos que no necesitas ser el monstruo más aterrador para ser genial. Valoramos la lealtad, la creatividad y aceptamos a todos tal cual son. Aquí has encontrado amigos para toda la vida."
+            },
+            ROR: {
+                id: "ROR",
+                name: "Roar Omega Roar",
+                colorClass: "bg-ror",
+                textClass: "text-ror",
+                desc: "Solo lo mejor de lo mejor. Tienes la ambición, el talento y el porte de un verdadero asustador de élite. Te espera un futuro lleno de trofeos y prestigio. Recuerda: un RΩR nunca se conforma con el segundo lugar."
+            },
+            PNK: {
+                id: "PNK",
+                name: "Python Nu Kappa",
+                colorClass: "bg-pnk",
+                textClass: "text-pnk",
+                desc: "Lindas pero letales. Tienes un carisma increíble y una energía vibrante, pero cuando llega el momento de competir, eres una fuerza de la naturaleza. Dominas la escena social y el campo de sustos con estilo."
+            },
+            JOX: {
+                id: "JOX",
+                name: "Jaws Theta Chi",
+                colorClass: "bg-jox",
+                textClass: "text-jox",
+                desc: "¡FUERZA! Eres pura potencia y determinación. No te andas con rodeos; si hay un obstáculo, lo atraviesas. En JOX respetamos tu dureza y tus ganas de ser siempre el más fuerte del gimnasio."
+            },
+            HSS: {
+                id: "HSS",
+                name: "Eta Hiss Hiss",
+                colorClass: "bg-hss",
+                textClass: "text-hss",
+                desc: "El misterio te rodea. Eres de pocas palabras pero de gran impacto. Tu capacidad de asustar desde las sombras y tu estilo gótico te hacen única. En HSS, el silencio es nuestra mejor herramienta."
+            },
+            EEK: {
+                id: "EEK",
+                name: "Slugma Slugma Kappa",
+                colorClass: "bg-eek",
+                textClass: "text-eek",
+                desc: "¡Rápido, rápido! Tu disciplina y agilidad son impresionantes. Siempre estás un paso por delante de la competencia gracias a tu excelente condición física. Aquí entrenamos duro para que nadie pueda alcanzarnos."
+            }
+        };
+
+        let currentQuestion = 0;
+        let scores = { OK: 0, ROR: 0, PNK: 0, JOX: 0, HSS: 0, EEK: 0 };
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById('question-number').innerText = `Pregunta ${currentQuestion + 1} de ${quizData.length}`;
+            document.getElementById('question-text').innerText = q.q;
+            
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "option-btn w-full p-4 text-left rounded-xl bg-gray-50 border border-gray-200 font-medium text-gray-700 animate__animated animate__fadeInUp";
+                btn.style.animationDelay = `${idx * 0.1}s`;
+                btn.innerText = opt.t;
+                btn.onclick = () => selectOption(opt.f);
+                optionsContainer.appendChild(btn);
+            });
+
+            const progress = ((currentQuestion) / quizData.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        function selectOption(frat) {
+            scores[frat]++;
+            
+            if (currentQuestion < quizData.length - 1) {
+                const card = document.getElementById('question-card');
+                card.classList.remove('animate__fadeInRight');
+                card.classList.add('animate__fadeOutLeft');
+                
+                setTimeout(() => {
+                    currentQuestion++;
+                    showQuestion();
+                    card.classList.remove('animate__fadeOutLeft');
+                    card.classList.add('animate__fadeInRight');
+                }, 400);
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            let winner = 'OK';
+            let maxScore = -1;
+            for (const frat in scores) {
+                if (scores[frat] > maxScore) {
+                    maxScore = scores[frat];
+                    winner = frat;
+                }
+            }
+
+            // Mostrar ganador
+            const data = fraternityDetails[winner];
+            document.getElementById('result-header').className = `p-8 text-white text-center ${data.colorClass}`;
+            document.getElementById('result-name').innerText = data.name;
+            document.getElementById('result-description').innerText = data.desc;
+
+            // Listar todas las fraternidades
+            const listContainer = document.getElementById('all-fraternities-list');
+            listContainer.innerHTML = '';
+            
+            Object.values(fraternityDetails).forEach(f => {
+                const isWinner = f.id === winner;
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border-l-4 ${isWinner ? 'bg-white shadow-md' : 'bg-transparent'} ${f.colorClass.replace('bg-', 'border-')}`;
+                div.innerHTML = `
+                    <h4 class="font-bold ${f.textClass} text-lg mb-1">${f.name} ${isWinner ? '⭐' : ''}</h4>
+                    <p class="text-gray-600 text-sm">${f.desc}</p>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
